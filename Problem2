@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct WebPage {
+    char url[100];
+    struct WebPage* prev;
+    struct WebPage* next;
+} WebPage;
+typedef struct BrowserHistory {
+    WebPage* current;
+} BrowserHistory;
+
+void initBrowserHistory(BrowserHistory* history) {
+    history->current = NULL;
+}
+int isBrowserHistoryEmpty(BrowserHistory* history) {
+    return (history->current == NULL);
+}
+void visitWebPage(BrowserHistory* history, const char* url) {
+    // Create a new web page node
+    WebPage* newWebPage = (WebPage*)malloc(sizeof(WebPage));
+    strcpy(newWebPage->url, url);
+    newWebPage->prev = NULL;
+    newWebPage->next = NULL;
+    if (isBrowserHistoryEmpty(history)) {
+        history->current = newWebPage;
+        return;
+    }
+   newWebPage->prev = history->current;
+   newWebPage->next = NULL;
+   history->current->next = newWebPage;
+   history->current = newWebPage; 
+}
+void navigateBack(BrowserHistory* history) {
+    if (isBrowserHistoryEmpty(history)) {
+        printf("Browser history is empty.\n");
+        return;
+    }
+    if (history->current->prev != NULL) {
+        history->current = history->current->prev;
+    } else {
+        printf("No previous page available.\n");
+    }
+}
+void navigateForward(BrowserHistory* history) {
+    if (isBrowserHistoryEmpty(history)) {
+        printf("Browser history is empty.\n");
+        return;
+    }
+    if (history->current->next != NULL) {
+        history->current = history->current->next;
+    } else {
+        printf("No next page available.\n");
+    }
+}
+void displayCurrentPage(BrowserHistory* history) {
+    if (isBrowserHistoryEmpty(history)) {
+        printf("Browser history is empty.\n");
+        return;
+    }
+
+    printf("Current Page: %s\n", history->current->url);
+}
+
+int main() {
+    BrowserHistory history;
+    initBrowserHistory(&history);
+     visitWebPage(&history, "https://www.google.com");
+     visitWebPage(&history, "https://www.github.com");
+     visitWebPage(&history, "https://www.linkedin.com");
+     displayCurrentPage(&history);
+     navigateBack(&history);
+     displayCurrentPage(&history);
+     navigateForward(&history);
+     displayCurrentPage(&history);
+
+     return 0;
+}
