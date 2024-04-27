@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct PrintJob {
+    int jobId;
+    int length;
+    struct PrintJob* next;
+} PrintJob;
+
+typedef struct PrinterQueue {
+    PrintJob* front;
+    PrintJob* rear;
+} PrinterQueue;
+
+void initPrinterQueue(PrinterQueue* queue) {
+    queue->front = NULL;
+    queue->rear = NULL;
+}
+
+int isPrinterQueueEmpty(PrinterQueue* queue) {
+    return (queue->front == NULL);
+}
+void enqueue(PrinterQueue* queue, int jobId, int length) {
+    
+    PrintJob* newPrintJob = (PrintJob*)malloc(sizeof(PrintJob));
+    newPrintJob->jobId = jobId;
+    newPrintJob->length = length;
+    newPrintJob->next = NULL;
+
+    
+    if (isPrinterQueueEmpty(queue)) {
+        queue->front = newPrintJob;
+        queue->rear = newPrintJob;
+        return;
+    }
+
+   
+   queue->rear->next = newPrintJob;
+   queue->rear = newPrintJob; 
+}
+
+int dequeue(PrinterQueue* queue) {
+   if (isPrinterQueueEmpty(queue)) {
+       printf("Printer queue is empty.\n");
+       return -1; 
+   }
+
+   PrintJob* frontPrintJob = queue->front;
+   
+   
+   if (queue->front == queue->rear) {
+       queue->front = NULL;
+       queue->rear = NULL;
+   } else {
+       queue->front = frontPrintJob->next;
+   }
+   
+   int jobId = frontPrintJob->jobId;
+
+   free(frontPrintJob); 
+
+   return jobId; 
+}
+
+
+void display(PrinterQueue* queue) {
+    if (isPrinterQueueEmpty(queue)) {
+        printf("Printer queue is empty.\n");
+        return;
+    }
+
+    PrintJob* current = queue->front;
+
+    printf("Printer Queue:\n");
+    while (current != NULL) {
+        printf("Job ID: %d, Length: %d\n", current->jobId, current->length);
+        current = current->next;
+    }
+}
+
+int main() {
+    PrinterQueue queue;
+    initPrinterQueue(&queue);
+
+    int jobId, length, numJobs;
+
+    printf("Enter the number of print jobs: ");
+    scanf("%d", &numJobs);
+
+    for (int i = 0; i < numJobs; i++) {
+        printf("Enter Job ID and Length for Job %d: ", i + 1);
+        scanf("%d %d", &jobId, &length);
+        enqueue(&queue, jobId, length);
+    }
+
+     display(&queue);
+     int removedJobId = dequeue(&queue);
+     if (removedJobId != -1) {
+         printf("Removed Job ID: %d\n", removedJobId);
+     }
+     display(&queue);
+
+     return 0;
+}
